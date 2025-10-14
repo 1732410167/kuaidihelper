@@ -4,9 +4,9 @@
 
 获取方式
 
-前往仓库 Release 页面，直接下载最新版本
+1.前往仓库 Release 页面，直接下载最新版本
 
-网盘下载
+2.网盘下载
 
 链接：https://wwpl.lanzouw.com/iuLnK38exsob
 
