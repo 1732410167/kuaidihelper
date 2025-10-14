@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>施工中 - 敬请期待</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#64748B',
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div class="max-w-md w-full text-center">
+        <!-- 施工图标 -->
+        <div class="w-24 h-24 mx-auto mb-8 text-primary animate-pulse-slow">
+            <i class="fa fa-wrench text-6xl" aria-hidden="true"></i>
+        </div>
+        
+        <!-- 主标题 -->
+        <h1 class="text-[clamp(2rem,6vw,3.5rem)] font-bold text-gray-800 mb-6 leading-tight text-shadow">
+            施工中<br>静候佳音
+        </h1>
+        
+        <!-- 分隔线 -->
+        <div class="w-24 h-1 bg-primary/30 mx-auto my-8 rounded-full"></div>
+        
+        <!-- 说明文字 -->
+        <p class="text-secondary text-lg md:text-xl leading-relaxed">
+            如您有此驿站的查询二维码，请联系开发者！
+        </p>
+        
+        <!-- 联系图标 -->
+        <div class="mt-12 text-primary/70">
+            <i class="fa fa-envelope-o text-2xl" aria-hidden="true"></i>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer class="absolute bottom-6 text-gray-400 text-sm">
+        <p>预计完成时间待定</p>
+    </footer>
+    
+    <!-- 页面加载动画 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.querySelector('.max-w-md');
+            mainContent.style.opacity = '0';
+            mainContent.style.transform = 'translateY(20px)';
+            mainContent.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            
+            setTimeout(() => {
+                mainContent.style.opacity = '1';
+                mainContent.style.transform = 'translateY(0)';
+            }, 300);
+        });
+    </script>
+</body>
+</html>
+    

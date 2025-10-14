@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#0F766E',
+                        neutral: '#F3F4F6',
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .btn-hover {
+                @apply transform transition-all duration-300 hover:scale-105 hover:shadow-md;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white flex items-center justify-center p-4 font-sans text-gray-800">
+    <!-- 主容器 -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-md p-8 flex flex-col items-center border border-gray-100">
+        <!-- 标题区域 -->
+        <div class="mb-8 text-center">
+            <h1 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-gray-800 mb-2">
+                隐私号取件码查询
+            </h1>
+            <p class="text-gray-500 text-sm md:text-base">请选择驿站，跳转后点击“添加快递”</p>
+        </div>
+        
+        <!-- 按钮容器 - 竖向排列 -->
+        <div class="w-full space-y-4">
+            <!-- 第一个网址按钮 -->
+            <a href="https://mobile.yangkeduo.com/undefined.html?src=weixin&add_download_task=1&android_browser_download=1&ios_fast_download=1&task_apk_tag=3&window_id=30469&campaign=mdkd&jump_url=https%3A%2F%2Fm.pinduoduo.net%2Fmdkd%2Fpackage%3Fstation_code%3DA074107048" target="_blank" rel="noopener noreferrer" 
+               class="w-full flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white font-medium py-4 px-6 rounded-xl btn-hover">
+                <i class="fa fa-link text-xl" aria-hidden="true"></i>
+                <span>南苑驿站</span>
+                <i class="fa fa-arrow-right ml-auto" aria-hidden="true"></i>
+            </a>
+            
+            <!-- 第二个网址按钮 -->
+            <a href="http://47.122.125.201:9191/check/404/" target="_blank" rel="noopener noreferrer" 
+               class="w-full flex items-center justify-center gap-3 bg-secondary hover:bg-secondary/90 text-white font-medium py-4 px-6 rounded-xl btn-hover">
+                <i class="fa fa-link text-xl" aria-hidden="true"></i>
+                <span>北苑驿站</span>
+                <i class="fa fa-arrow-right ml-auto" aria-hidden="true"></i>
+            </a>
+             <!-- 第三个网址按钮 -->
+            <a href="http://47.122.125.201:9191/check/404/" target="_blank" rel="noopener noreferrer" 
+               class="w-full flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white font-medium py-4 px-6 rounded-xl btn-hover">
+                <i class="fa fa-link text-xl" aria-hidden="true"></i>
+                <span>生活区驿站</span>
+                <i class="fa fa-arrow-right ml-auto" aria-hidden="true"></i>
+            </a>
+        </div>
+        
+        <!-- 分隔线 -->
+        <div class="my-6 w-full border-t border-gray-200"></div>
+        
+        <!-- 额外信息 -->
+        <div class="text-center text-gray-500 text-sm">
+            <p>免责声明：本工具仅提供便捷入口，请合理使用！</p>
+        </div>
+    </div>
+    
+    <!-- 页面加载动画 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('div[class*="max-w-md"]');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(10px)';
+            container.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快递取件码管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        danger: '#EF4444',
+                        light: '#F3F4F6',
+                        dark: '#1F2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            }
+            .card-hover {
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center">
+                <i class="fa fa-box mr-2"></i>快递取件码管理
+            </h1>
+            <button id="addBtn" class="bg-white text-primary px-4 py-2 rounded-lg font-medium flex items-center hover:bg-gray-100 transition">
+                <i class="fa fa-plus mr-2"></i>添加取件码
+            </button>
+        </div>
+    </header>
+
+    <!-- 快捷访问按钮 -->
+    <div class="container mx-auto px-4 py-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <a href="http://47.122.125.201:9191/check/" target="_blank" class="bg-white rounded-xl p-4 flex flex-col items-center justify-center shadow-md hover:shadow-lg transition">
+                <i class="fa fa-search text-3xl text-primary mb-2"></i>
+                <span class="font-medium">隐私号查询</span>
+            </a>
+            <a href="https://mobile.yangkeduo.com/undefined.html?src=weixin&add_download_task=1&android_browser_download=1&ios_fast_download=1&task_apk_tag=3&window_id=30469&campaign=mdkd&jump_url=https%3A%2F%2Fm.pinduoduo.net%2Fmdkd%2Fpackage%3Fentry_source%3D18%26p_channel%3D0" target="_blank" class="bg-white rounded-xl p-4 flex flex-col items-center justify-center shadow-md hover:shadow-lg transition">
+                <i class="fa fa-shopping-cart text-3xl text-red-500 mb-2"></i>
+                <span class="font-medium">多多取件码</span>
+            </a>
+        </div>
+        
+        <!-- 筛选区域 -->
+        <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">取件地址</label>
+                    <select id="addressFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">所有地址</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">快递公司</label>
+                    <select id="companyFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">所有公司</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="resetFilter" class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        <i class="fa fa-refresh mr-1"></i>重置
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 取件码卡片容器 -->
+        <div id="parcelContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 卡片将通过JavaScript动态生成 -->
+        </div>
+        
+        <!-- 空状态提示 -->
+        <div id="emptyState" class="hidden py-16 text-center">
+            <i class="fa fa-box-open text-6xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500 text-lg">暂无取件码信息</p>
+            <p class="text-gray-400 mt-2">点击"添加取件码"按钮添加你的第一个取件信息</p>
+        </div>
+    </div>
+
+    <!-- 添加取件码模态框 -->
+    <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-bold text-gray-800">添加取件码</h2>
+                <button id="closeModal" class="absolute top-6 right-6 text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- 添加方式选项卡 -->
+                <div class="border-b mb-6">
+                    <div class="flex">
+                        <button class="add-method-btn active py-2 px-4 font-medium border-b-2 border-primary text-primary" data-method="manual">
+                            手动输入
+                        </button>
+                        <button class="add-method-btn py-2 px-4 font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-method="text">
+                            文本解析
+                        </button>
+                        <button class="add-method-btn py-2 px-4 font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-method="image">
+                            图片识别
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 手动输入表单 -->
+                <div class="add-method-content active" id="manualInput">
+                    <form id="parcelForm">
+                        <div class="mb-4">
+                            <label for="code" class="block text-sm font-medium text-gray-700 mb-1">取件码 <span class="text-danger">*</span></label>
+                            <input type="text" id="code" name="code" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                placeholder="请输入取件码">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">取件地址 <span class="text-danger">*</span></label>
+                            <input type="text" id="address" name="address" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                placeholder="请输入取件地址">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="company" class="block text-sm font-medium text-gray-700 mb-1">快递公司</label>
+                            <input type="text" id="company" name="company"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                placeholder="请输入快递公司">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">备注信息</label>
+                            <textarea id="notes" name="notes" rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                placeholder="请输入备注信息（可选）"></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end gap-3">
+                            <button type="button" id="cancelBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                                取消
+                            </button>
+                            
+                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                                保存
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 文本解析 -->
+                <div class="add-method-content hidden" id="textParse">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">输入包含取件信息的文本</label>
+                        <textarea id="parseText" rows="6"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="请粘贴包含取件码、地址等信息的文本，系统将自动解析..."></textarea>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <button id="doParseBtn" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition">
+                            <i class="fa fa-magic mr-1"></i>开始解析
+                        </button>
+                    </div>
+                    
+                    <div id="parseResult" class="p-4 bg-gray-50 rounded-lg hidden">
+                        <h4 class="font-medium mb-3">解析结果：</h4>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs text-gray-500">取件码</label>
+                                <p id="parseCode" class="font-medium"></p>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500">快递公司</label>
+                                <p id="parseCompany" class="font-medium"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-xs text-gray-500">取件地址</label>
+                                <p id="parseAddress" class="font-medium"></p>
+                            </div>
+                        </div>
+                        
+                        <button id="useParseResultBtn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                            使用此结果
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 图片识别 -->
+                <div class="add-method-content hidden" id="imageRecognition">
+                    <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg mb-6">
+                        <i class="fa fa-camera text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-500 mb-4">请上传包含取件信息的图片</p>
+                        <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                        <button id="browseImageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                            <i class="fa fa-upload mr-1"></i>选择图片
+                        </button>
+                    </div>
+                    
+                    <div id="imagePreview" class="hidden mb-6">
+                        <img id="previewImg" src="" alt="预览图" class="max-w-full rounded-lg">
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button id="recognizeImageBtn" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition" disabled>
+                            <i class="fa fa-eye mr-1"></i>识别图片
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div id="toast" class="fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+        <i id="toastIcon" class="mr-2"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // 全局变量
+        let allParcels = [];
+        
+        // DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载所有取件码
+            loadParcels();
+            
+            // 事件监听
+            setupEventListeners();
+        });
+        
+        /**
+         * 加载所有取件码
+         */
+        function loadParcels() {
+            fetch('parcel_handler.php?action=getAll')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        allParcels = data.data;
+                        renderParcels(allParcels);
+                        updateFilters();
+                    } else {
+                        showToast('错误', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('加载数据失败:', error);
+                    showToast('错误', '加载数据失败，请刷新页面重试', 'error');
+                });
+        }
+        
+        /**
+         * 渲染取件码卡片
+         */
+        function renderParcels(parcels) {
+            const container = document.getElementById('parcelContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            container.innerHTML = '';
+            
+            if (parcels.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            parcels.forEach(parcel => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl overflow-hidden shadow card-shadow card-hover';
+                card.dataset.id = parcel.id;
+                card.dataset.address = parcel.address;
+                card.dataset.company = parcel.company;
+                
+                card.innerHTML = `
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="inline-block px-2 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">
+                                    ${parcel.company || '未知公司'}
+                                </span>
+                            </div>
+                            <button class="delete-btn text-gray-400 hover:text-danger transition" data-id="${parcel.id}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-500 mb-1">取件码</p>
+                            <p class="text-2xl font-bold text-gray-800 code-value">${parcel.code}</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-500 mb-1">取件地址</p>
+                            <p class="text-gray-700">${parcel.address}</p>
+                        </div>
+                        
+                        ${parcel.notes ? `
+                            <div class="mb-2">
+                                <p class="text-sm text-gray-500 mb-1">备注</p>
+                                <p class="text-gray-600 text-sm">${parcel.notes}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="text-xs text-gray-400 mt-3">
+                            添加于 ${parcel.date}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+                
+                // 添加复制取件码功能
+                const codeValue = card.querySelector('.code-value');
+                codeValue.addEventListener('click', function() {
+                    navigator.clipboard.writeText(this.textContent)
+                        .then(() => {
+                            showToast('成功', '取件码已复制到剪贴板', 'success');
+                        })
+                        .catch(err => {
+                            console.error('复制失败:', err);
+                            showToast('错误', '复制失败，请手动复制', 'error');
+                        });
+                });
+            });
+            
+            // 为删除按钮添加事件监听
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    if (confirm('确定要删除这条取件信息吗？')) {
+                        deleteParcel(id);
+                    }
+                });
+            });
+        }
+        
+        /**
+         * 更新筛选器选项
+         */
+        function updateFilters() {
+            const addressFilter = document.getElementById('addressFilter');
+            const companyFilter = document.getElementById('companyFilter');
+            
+            // 收集所有地址和公司
+            const addresses = new Set();
+            const companies = new Set();
+            
+            allParcels.forEach(parcel => {
+                if (parcel.address) addresses.add(parcel.address);
+                if (parcel.company) companies.add(parcel.company);
+            });
+            
+            // 更新地址筛选器
+            let addressOptions = '<option value="">所有地址</option>';
+            addresses.forEach(address => {
+                addressOptions += `<option value="${address}">${address}</option>`;
+            });
+            addressFilter.innerHTML = addressOptions;
+            
+            // 更新公司筛选器
+            let companyOptions = '<option value="">所有公司</option>';
+            companies.forEach(company => {
+                companyOptions += `<option value="${company}">${company}</option>`;
+            });
+            companyFilter.innerHTML = companyOptions;
+        }
+        
+        /**
+         * 筛选取件码
+         */
+        function filterParcels() {
+            const address = document.getElementById('addressFilter').value;
+            const company = document.getElementById('companyFilter').value;
+            
+            let filtered = allParcels;
+            
+            if (address) {
+                filtered = filtered.filter(parcel => parcel.address === address);
+            }
+            
+            if (company) {
+                filtered = filtered.filter(parcel => parcel.company === company);
+            }
+            
+            renderParcels(filtered);
+        }
+        
+        /**
+         * 添加新取件码
+         */
+        function addNewParcel(formData) {
+            const formDataObj = {
+                action: 'add',
+                code: formData.get('code'),
+                address: formData.get('address'),
+                company: formData.get('company'),
+                notes: formData.get('notes')
+            };
+            
+            fetch('parcel_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(formDataObj)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('成功', '取件码添加成功', 'success');
+                    document.getElementById('parcelForm').reset();
+                    document.getElementById('addModal').classList.add('hidden');
+                    loadParcels(); // 重新加载数据
+                } else {
+                    showToast('错误', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('添加失败:', error);
+                showToast('错误', '添加失败，请重试', 'error');
+            });
+        }
+        
+        /**
+         * 删除取件码
+         */
+        function deleteParcel(id) {
+            fetch('parcel_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    action: 'delete',
+                    id: id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('成功', '取件码已删除', 'success');
+                    loadParcels(); // 重新加载数据
+                } else {
+                    showToast('错误', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('删除失败:', error);
+                showToast('错误', '删除失败，请重试', 'error');
+            });
+        }
+        
+        /**
+         * 解析文本
+         */
+        function parseText() {
+            const text = document.getElementById('parseText').value.trim();
+            
+            if (!text) {
+                showToast('提示', '请输入要解析的文本', 'info');
+                return;
+            }
+            
+            fetch('parcel_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    action: 'parseText',
+                    text: text
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const result = data.data;
+                    document.getElementById('parseCode').textContent = result.code || '未识别';
+                    document.getElementById('parseAddress').textContent = result.address || '未识别';
+                    document.getElementById('parseCompany').textContent = result.company || '未识别';
+                    document.getElementById('parseResult').classList.remove('hidden');
+                } else {
+                    showToast('错误', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('解析失败:', error);
+                showToast('错误', '解析失败，请重试', 'error');
+            });
+        }
+        
+        /**
+         * 显示提示消息
+         */
+        function showToast(title, message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // 设置图标和样式
+            toast.className = 'fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center';
+            
+            if (type === 'success') {
+                toast.classList.add('bg-green-50', 'text-green-800', 'border', 'border-green-200');
+                toastIcon.className = 'fa fa-check-circle text-green-500 mr-2';
+            } else if (type === 'error') {
+                toast.classList.add('bg-red-50', 'text-red-800', 'border', 'border-red-200');
+                toastIcon.className = 'fa fa-exclamation-circle text-red-500 mr-2';
+            } else {
+                toast.classList.add('bg-blue-50', 'text-blue-800', 'border', 'border-blue-200');
+                toastIcon.className = 'fa fa-info-circle text-blue-500 mr-2';
+            }
+            
+            // 设置消息内容
+            toastMessage.innerHTML = `<strong>${title}:</strong> ${message}`;
+            
+            // 显示提示
+            setTimeout(() => {
+                toast.classList.remove('translate-y-20', 'opacity-0');
+            }, 10);
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+        
+        /**
+         * 设置事件监听器
+         */
+        function setupEventListeners() {
+            // 模态框控制
+            document.getElementById('addBtn').addEventListener('click', function() {
+                document.getElementById('addModal').classList.remove('hidden');
+                // 重置表单和选项卡
+                document.getElementById('parcelForm').reset();
+                document.getElementById('parseResult').classList.add('hidden');
+                document.getElementById('imagePreview').classList.add('hidden');
+                document.getElementById('recognizeImageBtn').setAttribute('disabled', true);
+                switchAddMethod('manual');
+            });
+            
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('addModal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancelBtn').addEventListener('click', function() {
+                document.getElementById('addModal').classList.add('hidden');
+            });
+            
+            // 添加方式选项卡切换
+            document.querySelectorAll('.add-method-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const method = this.getAttribute('data-method');
+                    switchAddMethod(method);
+                });
+            });
+            
+            // 表单提交
+            document.getElementById('parcelForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addNewParcel(new FormData(this));
+            });
+            
+            // 筛选器变化
+            document.getElementById('addressFilter').addEventListener('change', filterParcels);
+            document.getElementById('companyFilter').addEventListener('change', filterParcels);
+            
+            // 重置筛选
+            document.getElementById('resetFilter').addEventListener('click', function() {
+                document.getElementById('addressFilter').value = '';
+                document.getElementById('companyFilter').value = '';
+                renderParcels(allParcels);
+            });
+            
+            // 文本解析
+            document.getElementById('doParseBtn').addEventListener('click', parseText);
+            
+            // 使用解析结果
+            document.getElementById('useParseResultBtn').addEventListener('click', function() {
+                const code = document.getElementById('parseCode').textContent !== '未识别' 
+                    ? document.getElementById('parseCode').textContent 
+                    : '';
+                const address = document.getElementById('parseAddress').textContent !== '未识别'
+                    ? document.getElementById('parseAddress').textContent
+                    : '';
+                const company = document.getElementById('parseCompany').textContent !== '未识别'
+                    ? document.getElementById('parseCompany').textContent
+                    : '';
+                
+                // 填充到手动输入表单
+                document.getElementById('code').value = code;
+                document.getElementById('address').value = address;
+                document.getElementById('company').value = company;
+                
+                // 切换到手动输入选项卡
+                switchAddMethod('manual');
+            });
+            
+            // 图片上传
+            document.getElementById('browseImageBtn').addEventListener('click', function() {
+                document.getElementById('imageUpload').click();
+            });
+            
+            document.getElementById('imageUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.getElementById('previewImg').src = event.target.result;
+                        document.getElementById('imagePreview').classList.remove('hidden');
+                        document.getElementById('recognizeImageBtn').removeAttribute('disabled');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 图片识别（实际项目中需要后端OCR接口支持）
+            document.getElementById('recognizeImageBtn').addEventListener('click', function() {
+                showToast('提示', '图片识别功能需要OCR服务支持，此处仅为演示', 'info');
+                
+                // 模拟识别结果，实际项目中应调用OCR接口
+                setTimeout(() => {
+                    document.getElementById('parseText').value = '您的中通快递已到达小区南门快递柜，取件码：876543，请及时取件。';
+                    switchAddMethod('text');
+                }, 1000);
+            });
+        }
+        
+        /**
+         * 切换添加方式选项卡
+         */
+        function switchAddMethod(method) {
+            // 移除所有活动状态
+            document.querySelectorAll('.add-method-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            document.querySelectorAll('.add-method-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('active');
+            });
+            
+            // 设置选中状态
+            document.querySelector(`.add-method-btn[data-method="${method}"]`).classList.add('active', 'border-primary', 'text-primary');
+            document.querySelector(`#${method}Input, #${method}Parse, #${method}Recognition`).classList.remove('hidden');
+            document.querySelector(`#${method}Input, #${method}Parse, #${method}Recognition`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
