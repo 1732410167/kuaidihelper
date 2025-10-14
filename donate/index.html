@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打赏作者</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#0F766E',
+                        accent: '#EC4899',
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .btn-hover {
+                @apply transform transition-all duration-300 hover:scale-105 hover:shadow-md;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans text-gray-800">
+    <!-- 主容器 -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-md p-8 flex flex-col items-center border border-gray-100">
+        <!-- 标题区域 -->
+        <div class="mb-6 text-center">
+            <h1 class="text-[clamp(1.5rem,4vw,2rem)] font-bold text-gray-800 mb-2">
+                支持作者
+            </h1>
+            <p class="text-gray-500 text-sm md:text-base">您的支持是我持续创作的动力</p>
+        </div>
+        
+        <!-- 赞赏码区域 -->
+        <div class="mb-8 w-full flex justify-center">
+            <div class="relative w-64 h-64 bg-white rounded-xl shadow-sm p-3 card-hover">
+                <!-- 这里放置赞赏码图片，您可以替换为实际的赞赏码图片 -->
+                <img src="http://sdfsdg.test.upcdn.net/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20251014225527_48_41.jpg" alt="赞赏码" class="w-full h-full object-contain">
+                
+                <!-- 可选：添加支付方式标签 -->
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-white text-xs px-3 py-1 rounded-full">
+                    微信扫码
+                </div>
+            </div>
+        </div>
+        
+        <!-- 说明文字 -->
+        <div class="text-center text-gray-500 text-xs mb-8 px-4">
+            <p>感谢您的支持！无论金额大小，都是对作者最大的鼓励</p>
+        </div>
+        
+        <!-- 返回按钮 -->
+        <a href="#" class="btn-hover flex items-center gap-2 text-primary font-medium">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            <span>返回上一页</span>
+        </a>
+    </div>
+    
+    <!-- 页面加载动画 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('div[class*="max-w-md"]');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(10px)';
+            container.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
+    
