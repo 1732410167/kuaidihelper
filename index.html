@@ -62,7 +62,7 @@
     <!-- 快捷访问按钮 -->
     <div class="container mx-auto px-4 py-6">
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-            <a href="https://ciallo.iepose.cn/check/" target="_blank" class="bg-white rounded-xl p-4 flex flex-col items-center justify-center shadow-md hover:shadow-lg transition">
+            <a href="./check/index.html" target="_blank" class="bg-white rounded-xl p-4 flex flex-col items-center justify-center shadow-md hover:shadow-lg transition">
                 <i class="fa fa-search text-3xl text-primary mb-2"></i>
                 <span class="font-medium">隐私号查询</span>
             </a>
@@ -75,17 +75,19 @@
         <!-- 筛选区域 -->
         <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
             <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">取件地址</label>
-                    <select id="addressFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                        <option value="">所有地址</option>
-                    </select>
-                </div>
-                <div class="flex-1">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">快递公司</label>
-                    <select id="companyFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                        <option value="">所有公司</option>
-                    </select>
+                <div class="flex-1 flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">取件地址</label>
+                        <select id="addressFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">所有地址</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">快递公司</label>
+                        <select id="companyFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">所有公司</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="flex items-end">
                     <button id="resetFilter" class="w-full md:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
@@ -165,14 +167,19 @@
                                 placeholder="请输入备注信息（可选）"></textarea>
                         </div>
                         
-                        <div class="flex justify-end gap-3">
-                            <button type="button" id="cancelBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-                                取消
+                        <div class="flex justify-between gap-3">
+                            <button type="button" id="clearManualBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                                <i class="fa fa-eraser mr-1"></i>清空
                             </button>
-                            
-                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
-                                保存
-                            </button>
+                            <div class="flex gap-3">
+                                <button type="button" id="cancelBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                                    取消
+                                </button>
+                                
+                                <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                                    保存
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -186,13 +193,16 @@
                             placeholder="请粘贴包含取件码、地址等信息的文本，系统将自动解析..."></textarea>
                     </div>
                     
-                    <div class="mb-6">
+                    <div class="flex justify-between items-center">
+                        <button id="clearTextBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                            <i class="fa fa-eraser mr-1"></i>清空文本
+                        </button>
                         <button id="doParseBtn" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition">
                             <i class="fa fa-magic mr-1"></i>开始解析
                         </button>
                     </div>
                     
-                    <div id="parseResult" class="p-4 bg-gray-50 rounded-lg hidden">
+                    <div id="parseResult" class="p-4 bg-gray-50 rounded-lg hidden mt-4">
                         <h4 class="font-medium mb-3">解析结果：</h4>
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <div>
@@ -359,7 +369,7 @@
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    const id = this.getAttribute('data-id');
+                const id = this.getAttribute('data-id');
                     if (confirm('确定要删除这条取件信息吗？')) {
                         deleteParcel(id);
                     }
@@ -658,6 +668,19 @@
                     switchAddMethod('text');
                 }, 1000);
             });
+            
+            // 清空手动输入表单
+            document.getElementById('clearManualBtn').addEventListener('click', function() {
+                document.getElementById('parcelForm').reset();
+                showToast('提示', '表单已清空', 'info');
+            });
+            
+            // 清空文本解析内容
+            document.getElementById('clearTextBtn').addEventListener('click', function() {
+                document.getElementById('parseText').value = '';
+                document.getElementById('parseResult').classList.add('hidden');
+                showToast('提示', '文本已清空', 'info');
+            });
         }
         
         /**
@@ -683,3 +706,4 @@
     </script>
 </body>
 </html>
+

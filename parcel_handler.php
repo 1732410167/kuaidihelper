@@ -224,12 +224,32 @@ function parseText() {
         }
     }
     
-    // 3. 提取地址（包含"柜"、"驿站"、"点"等关键词）
-    if (preg_match('/[^\n]*?(南苑|北苑)[^\n]*/', $text, $matches)) {
-        $result['address'] = $matches[0];
+    // 3. 提取地址（按照优先级识别）
+    
+    // 第一优先级：识别"南苑"、"北苑"、"生活区"
+    if (strpos($text, '南苑') !== false) {
+        $result['address'] = '南苑驿站';
+    } 
+    elseif (strpos($text, '北苑') !== false) {
+        $result['address'] = '北苑驿站';
+    } 
+    elseif (strpos($text, '生活区') !== false) {
+        $result['address'] = '生活区驿站';
     }
-    // 如果没找到上述关键词，尝试匹配包含小区/街道名称的地址
-    elseif (preg_match('/[^\n]*?(天猫超市|体育馆)[^\n]*/', $text, $matches)) {
+    
+    // 第二优先级：如果第一优先级未匹配到，识别"体育馆"、"天猫超市"、"小木屋"
+    elseif (strpos($text, '体育馆') !== false) {
+        $result['address'] = '北苑驿站';
+    } 
+    elseif (strpos($text, '天猫超市') !== false) {
+        $result['address'] = '南苑驿站';
+    } 
+    elseif (strpos($text, '小木屋') !== false) {
+        $result['address'] = '生活区驿站';
+    }
+    
+    // 第三优先级：如果上述情况都不符合，尝试提取地址关键词
+    elseif (preg_match('/[^\n]*?(柜|驿站|点)[^\n]*/', $text, $matches)) {
         $result['address'] = $matches[0];
     }
     
@@ -238,4 +258,5 @@ function parseText() {
         'data' => $result
     ]);
 }
+
 ?>
