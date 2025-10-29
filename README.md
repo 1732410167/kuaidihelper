@@ -7,10 +7,11 @@
 
 获取方式
 
-1.前往仓库 Release 页面，直接下载最新版本
+1.前往仓库 Release 页面，直接下载最新版本。
 
 2.NAS分流
 
 链接：https://s.fnnas.net/s/d01dd107ef7340d9b0
 
 如果对你有用，请留下一个star吧！
+
